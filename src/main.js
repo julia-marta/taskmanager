@@ -5,8 +5,11 @@ import {createSortingMarkup} from "./view/sorting.js";
 import {createCardEditMarkup} from "./view/card-edit.js";
 import {createCardMarkup} from "./view/card.js";
 import {createLoadButtonMarkup} from "./view/load-button.js";
+import {generateTasks} from "./mock/task.js";
 
 const CARD_COUNT = 3;
+
+const tasks = generateTasks(CARD_COUNT);
 
 const render = (container, markup, place = `beforeend`) => {
   container.insertAdjacentHTML(place, markup);
@@ -26,7 +29,7 @@ render(board, createSortingMarkup(), `afterbegin`);
 render(taskList, createCardEditMarkup());
 
 for (let i = 0; i < CARD_COUNT; i++) {
-  render(taskList, createCardMarkup());
+  render(taskList, createCardMarkup(tasks[i]));
 }
 
 render(board, createLoadButtonMarkup());

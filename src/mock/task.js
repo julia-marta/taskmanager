@@ -43,7 +43,7 @@ const generateRepeating = () => {
   };
 };
 
-export const generateTask = () => {
+const generateTask = () => {
   const dueDate = generateDate();
   const repeatingDays = (dueDate === null)
   ? generateRepeating()
@@ -65,4 +65,8 @@ export const generateTask = () => {
     isArchive: getRandomBoolean(),
     isFavorite: getRandomBoolean()
   };
+};
+
+export const generateTasks = (count) => {
+  return new Array(count).fill().map(generateTask);
 };
