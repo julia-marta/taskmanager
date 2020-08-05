@@ -1,17 +1,5 @@
-const isExpired = (dueDate) => {
-  if (dueDate === null) {
-    return false;
-  }
-
-  const currentDate = new Date();
-  currentDate.setHours(23, 59, 59, 999);
-
-  return currentDate > dueDate.getTime(); // та же функция, что была для card, но тут как раз currentDate не перезаписывается в новый объект
-};
-
-const isRepeating = (repeatingDays) => {
-  return Object.values(repeatingDays).some(Boolean);
-};
+import {COLORS} from "../const.js";
+import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate} from "../utils.js";
 
 const createCardEditDateMarkup = (dueDate) => {
   return `<button class="card__date-deadline-toggle" type="button">
@@ -25,7 +13,7 @@ const createCardEditDateMarkup = (dueDate) => {
         type="text"
         placeholder=""
         name="date"
-        value="${dueDate.toLocaleString(`en-US`, {day: `numeric`, month: `long`})}"
+        value="${humanizeTaskDueDate(dueDate)}"
       />
     </label>
   </fieldset>` : ``}`;
@@ -34,14 +22,14 @@ const createCardEditDateMarkup = (dueDate) => {
 const createCardEditRepeatingMarkup = (repeatingDays) => {
 
   return `<button class="card__repeat-toggle" type="button">
-    repeat:<span class="card__repeat-status">${isRepeating(repeatingDays) ? `yes` : `no`}</span>
+    repeat:<span class="card__repeat-status">${isTaskRepeating(repeatingDays) ? `yes` : `no`}</span>
     </button>
-    ${isRepeating(repeatingDays) ?
-      `<fieldset class="card__repeat-days">
+    ${isTaskRepeating(repeatingDays) ?
+    `<fieldset class="card__repeat-days">
       <div class="card__repeat-days-inner">
 
-      ${Object.entries(repeatingDays).map(([day, repeat]) =>
-      `<input class="visually-hidden card__repeat-day-input"
+    ${Object.entries(repeatingDays).map(([day, repeat]) =>
+    `<input class="visually-hidden card__repeat-day-input"
         type="checkbox"
         id="repeat-${day}"
         name="repeat"
@@ -56,10 +44,9 @@ const createCardEditRepeatingMarkup = (repeatingDays) => {
 };
 
 const createCardEditColorsMarkup = (currentColor) => {
-  const colors = [`black`, `yellow`, `blue`, `green`, `pink`];
 
-  return colors.map((color) => 
-  `<input type="radio"
+  return COLORS.map((color) =>
+    `<input type="radio"
     id="color-${color}"
     class="card__color-input card__color-input--${color} visually-hidden"
     name="color"
@@ -86,8 +73,8 @@ export const createCardEditMarkup = (task = {}) => {
     }
   } = task;
 
-  const deadlineClassName = isExpired(dueDate) ? `card--deadline` : ``;
-  const repeatClassName = isRepeating(repeatingDays) ? `card--repeat` : ``;
+  const deadlineClassName = isTaskExpired(dueDate) ? `card--deadline` : ``;
+  const repeatClassName = isTaskRepeating(repeatingDays) ? `card--repeat` : ``;
   const dateMarkup = createCardEditDateMarkup(dueDate);
   const repeatMarkup = createCardEditRepeatingMarkup(repeatingDays);
   const colorsMarkup = createCardEditColorsMarkup(color);

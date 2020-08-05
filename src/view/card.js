@@ -1,26 +1,12 @@
-const isExpired = (dueDate) => {
-  if (dueDate === null) {
-    return false;
-  }
-
-  let currentDate = new Date();
-  currentDate.setHours(23, 59, 59, 999);
-  currentDate = new Date(currentDate); //  тот же вопрос: зачем перезаписывать currentDate?
-
-  return currentDate.getTime() > dueDate.getTime();
-};
-
-const isRepeating = (repeatingDays) => {
-  return Object.values(repeatingDays).some(Boolean);
-};
+import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate} from "../utils.js";
 
 export const createCardMarkup = (task) => {
   const {color, description, dueDate, repeatingDays, isArchive, isFavorite} = task;
 
-  const date = (dueDate !== null) ? dueDate.toLocaleString(`en-US`, {day: `numeric`, month: `long`}) : ``;
-  const deadlineClassName = isExpired(dueDate) ? `card--deadline` : ``;
-  const repeatClassName = isRepeating(repeatingDays) ? `card--repeat` : ``;
-  const archiveClassName = isArchive ? `card__btn--archive card__btn--disabled`: `card__btn--archive`;
+  const date = (dueDate !== null) ? humanizeTaskDueDate(dueDate) : ``;
+  const deadlineClassName = isTaskExpired(dueDate) ? `card--deadline` : ``;
+  const repeatClassName = isTaskRepeating(repeatingDays) ? `card--repeat` : ``;
+  const archiveClassName = isArchive ? `card__btn--archive card__btn--disabled` : `card__btn--archive`;
   const favoriteClassName = isFavorite ? `card__btn--favorites card__btn--disabled` : `card__btn--favorites`;
 
   return (

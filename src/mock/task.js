@@ -1,18 +1,5 @@
-const descriptions = [`Изучить теорию`, `Сделать домашку`, `Пройти интенсив на соточку`];
-const colors = [`black`, `yellow`, `blue`, `green`, `pink`];
-
-const getRandomInteger = (min = 0, max = 1) => {
-  return Math.floor(min + Math.random() * (max - min + 1));
-};
-
-const getRandomBoolean = () => {
-  return Boolean(getRandomInteger(0, 1));
-}
-
-const getRandomIndex = (arr) => {
-  const randomIndex = getRandomInteger(0, arr.length - 1);
-  return arr[randomIndex];
-}
+import {DESCRIPTIONS, COLORS} from "../const.js";
+import {getRandomInteger, getRandomBoolean, getRandomIndex} from "../utils.js";
 
 const generateDate = () => {
   const isDate = getRandomBoolean();
@@ -28,7 +15,7 @@ const generateDate = () => {
   currentDate.setHours(23, 59, 59, 999);
   currentDate.setDate(currentDate.getDate() + daysGap);
 
-  return new Date(currentDate); // почему здесь возвращается new Date, а не просто currentDate? Ведь мы уже сохранили объект в эту переменную
+  return currentDate;
 };
 
 const generateRepeating = () => {
@@ -46,22 +33,22 @@ const generateRepeating = () => {
 const generateTask = () => {
   const dueDate = generateDate();
   const repeatingDays = (dueDate === null)
-  ? generateRepeating()
-  : {
-    mo: false,
-    tu: false,
-    we: false,
-    th: false,
-    fr: false,
-    sa: false,
-    su: false
-  };
+    ? generateRepeating()
+    : {
+      mo: false,
+      tu: false,
+      we: false,
+      th: false,
+      fr: false,
+      sa: false,
+      su: false
+    };
 
   return {
-    description: getRandomIndex(descriptions),
+    description: getRandomIndex(DESCRIPTIONS),
     dueDate,
     repeatingDays,
-    color: getRandomIndex(colors),
+    color: getRandomIndex(COLORS),
     isArchive: getRandomBoolean(),
     isFavorite: getRandomBoolean()
   };
