@@ -12,6 +12,7 @@ const CARD_COUNT = 16;
 
 const tasks = generateTasks(CARD_COUNT);
 const filters = generateFilters(tasks);
+console.log(filters);
 
 const render = (container, markup, place = `beforeend`) => {
   container.insertAdjacentHTML(place, markup);
