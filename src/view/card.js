@@ -16,6 +16,7 @@ const isRepeating = (repeatingDays) => {
 
 export const createCardMarkup = (task) => {
   const {color, description, dueDate, repeatingDays, isArchive, isFavorite} = task;
+
   const date = (dueDate !== null) ? dueDate.toLocaleString(`en-US`, {day: `numeric`, month: `long`}) : ``;
   const deadlineClassName = isExpired(dueDate) ? `card--deadline` : ``;
   const repeatClassName = isRepeating(repeatingDays) ? `card--repeat` : ``;

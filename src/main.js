@@ -7,7 +7,7 @@ import {createCardMarkup} from "./view/card.js";
 import {createLoadButtonMarkup} from "./view/load-button.js";
 import {generateTasks} from "./mock/task.js";
 
-const CARD_COUNT = 3;
+const CARD_COUNT = 16;
 
 const tasks = generateTasks(CARD_COUNT);
 
@@ -26,9 +26,9 @@ const board = mainPage.querySelector(`.board`);
 const taskList = board.querySelector(`.board__tasks`);
 
 render(board, createSortingMarkup(), `afterbegin`);
-render(taskList, createCardEditMarkup());
+render(taskList, createCardEditMarkup(tasks[0]));
 
-for (let i = 0; i < CARD_COUNT; i++) {
+for (let i = 1; i < CARD_COUNT; i++) {
   render(taskList, createCardMarkup(tasks[i]));
 }
 
