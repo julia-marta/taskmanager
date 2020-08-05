@@ -4,23 +4,35 @@ export const getRandomInteger = (min = 0, max = 1) => {
 
 export const getRandomBoolean = () => {
   return Boolean(getRandomInteger(0, 1));
-}
+};
 
 export const getRandomIndex = (arr) => {
   const randomIndex = getRandomInteger(0, arr.length - 1);
   return arr[randomIndex];
-}
+};
 
-export const isTaskExpired = (dueDate) => {
+const getCurrentDate = () => {
+  const currentDate = new Date();
+  currentDate.setHours(23, 59, 59, 999);
+
+  return currentDate;
+};
+
+export const isTaskExpired = (dueDate, isToday) => {
   if (dueDate === null) {
     return false;
   }
 
-  const currentDate = new Date();
-  currentDate.setHours(23, 59, 59, 999);
+  const currentDate = getCurrentDate();
 
-  return currentDate.getTime() > dueDate.getTime();
+  if (isToday) {
+    return currentDate.getTime() === dueDate.getTime();
+  } else {
+    return currentDate.getTime() > dueDate.getTime();
+  }
+
 };
+
 
 export const isTaskRepeating = (repeatingDays) => {
   return Object.values(repeatingDays).some(Boolean);
