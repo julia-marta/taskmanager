@@ -8,11 +8,11 @@ import {createLoadButtonMarkup} from "./view/load-button.js";
 import {generateTasks} from "./mock/task.js";
 import {generateFilters} from "./mock/filter.js";
 
-const CARD_COUNT = 16;
+const CARD_COUNT = 20;
+const CARD_COUNT_PER_STEP = 8;
 
 const tasks = generateTasks(CARD_COUNT);
 const filters = generateFilters(tasks);
-console.log(filters);
 
 const render = (container, markup, place = `beforeend`) => {
   container.insertAdjacentHTML(place, markup);
@@ -31,8 +31,27 @@ const taskList = board.querySelector(`.board__tasks`);
 render(board, createSortingMarkup(), `afterbegin`);
 render(taskList, createCardEditMarkup(tasks[0]));
 
-for (let i = 1; i < CARD_COUNT; i++) {
+for (let i = 1; i < Math.min(tasks.length, CARD_COUNT_PER_STEP); i++) {
   render(taskList, createCardMarkup(tasks[i]));
 }
 
-render(board, createLoadButtonMarkup());
+if (tasks.length > CARD_COUNT_PER_STEP) {
+  let renderedCardCount = CARD_COUNT_PER_STEP;
+  render(board, createLoadButtonMarkup());
+
+  const loadMoreButton = board.querySelector(`.load-more`);
+
+  const onLoadMoreButton = (evt) => {
+    evt.preventDefault();
+    tasks.slice(renderedCardCount, renderedCardCount + CARD_COUNT_PER_STEP)
+    .forEach((task) => render(taskList, createCardMarkup(task)));
+
+    renderedCardCount += CARD_COUNT_PER_STEP;
+
+    if (renderedCardCount >= tasks.length) {
+      loadMoreButton.remove();
+    }
+  }
+
+  loadMoreButton.addEventListener(`click`, onLoadMoreButton);
+};
