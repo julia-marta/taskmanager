@@ -13,6 +13,7 @@ const CARD_COUNT_PER_STEP = 8;
 
 const tasks = generateTasks(CARD_COUNT);
 const filters = generateFilters(tasks);
+console.log(filters);
 
 const render = (container, markup, place = `beforeend`) => {
   container.insertAdjacentHTML(place, markup);
@@ -31,8 +32,12 @@ const taskList = board.querySelector(`.board__tasks`);
 render(board, createSortingMarkup(), `afterbegin`);
 render(taskList, createCardEditMarkup(tasks[0]));
 
+const renderCards = (task) => {
+  render(taskList, createCardMarkup(task));
+}
+
 for (let i = 1; i < Math.min(tasks.length, CARD_COUNT_PER_STEP); i++) {
-  render(taskList, createCardMarkup(tasks[i]));
+  renderCards(tasks[i]);
 }
 
 if (tasks.length > CARD_COUNT_PER_STEP) {
@@ -41,10 +46,9 @@ if (tasks.length > CARD_COUNT_PER_STEP) {
 
   const loadMoreButton = board.querySelector(`.load-more`);
 
-  const onLoadMoreButton = (evt) => {
+  const onLoadMoreButtonClick = (evt) => {
     evt.preventDefault();
-    tasks.slice(renderedCardCount, renderedCardCount + CARD_COUNT_PER_STEP)
-    .forEach((task) => render(taskList, createCardMarkup(task)));
+    tasks.slice(renderedCardCount, renderedCardCount + CARD_COUNT_PER_STEP).forEach((task) => renderCards(task));
 
     renderedCardCount += CARD_COUNT_PER_STEP;
 
@@ -53,5 +57,5 @@ if (tasks.length > CARD_COUNT_PER_STEP) {
     }
   }
 
-  loadMoreButton.addEventListener(`click`, onLoadMoreButton);
+  loadMoreButton.addEventListener(`click`, onLoadMoreButtonClick);
 };

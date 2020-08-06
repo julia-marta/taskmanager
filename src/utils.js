@@ -6,9 +6,9 @@ export const getRandomBoolean = () => {
   return Boolean(getRandomInteger(0, 1));
 };
 
-export const getRandomIndex = (arr) => {
-  const randomIndex = getRandomInteger(0, arr.length - 1);
-  return arr[randomIndex];
+export const getRandomValue = (list) => {
+  const randomIndex = getRandomInteger(0, list.length - 1);
+  return list[randomIndex];
 };
 
 const getCurrentDate = () => {

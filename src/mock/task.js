@@ -1,5 +1,7 @@
 import {DESCRIPTIONS, COLORS} from "../const.js";
-import {getRandomInteger, getRandomBoolean, getRandomIndex} from "../utils.js";
+import {getRandomInteger, getRandomBoolean, getRandomValue} from "../utils.js";
+
+const MAX_DAYS_GUP = 7;
 
 const generateDate = () => {
   const isDate = getRandomBoolean();
@@ -8,8 +10,7 @@ const generateDate = () => {
     return null;
   }
 
-  const maxDaysGap = 7;
-  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
+  const daysGap = getRandomInteger(-MAX_DAYS_GUP, MAX_DAYS_GUP);
   const currentDate = new Date();
 
   currentDate.setHours(23, 59, 59, 999);
@@ -45,10 +46,10 @@ const generateTask = () => {
     };
 
   return {
-    description: getRandomIndex(DESCRIPTIONS),
+    description: getRandomValue(DESCRIPTIONS),
     dueDate,
     repeatingDays,
-    color: getRandomIndex(COLORS),
+    color: getRandomValue(COLORS),
     isArchive: getRandomBoolean(),
     isFavorite: getRandomBoolean()
   };

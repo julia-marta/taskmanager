@@ -3,7 +3,6 @@ import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate} from "../utils.js";
 export const createCardMarkup = (task) => {
   const {color, description, dueDate, repeatingDays, isArchive, isFavorite} = task;
 
-  const date = (dueDate !== null) ? humanizeTaskDueDate(dueDate) : ``;
   const deadlineClassName = isTaskExpired(dueDate) ? `card--deadline` : ``;
   const repeatClassName = isTaskRepeating(repeatingDays) ? `card--repeat` : ``;
   const archiveClassName = isArchive ? `card__btn--archive card__btn--disabled` : `card__btn--archive`;
@@ -34,14 +33,14 @@ export const createCardMarkup = (task) => {
           </div>
           <div class="card__settings">
             <div class="card__details">
-              <div class="card__dates">
-                <div class="card__date-deadline">
-                  <p class="card__input-deadline-wrap">
-                    <span class="card__date">${date}</span>
-                    <span class="card__time"></span>
-                  </p>
-                </div>
+            ${dueDate !== null ? `<div class="card__dates">
+              <div class="card__date-deadline">
+                <p class="card__input-deadline-wrap">
+                  <span class="card__date">${humanizeTaskDueDate(dueDate)}</span>
+                  <span class="card__time"></span>
+                </p>
               </div>
+            </div>` : ``}
             </div>
           </div>
         </div>

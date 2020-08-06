@@ -14,10 +14,12 @@ const taskToFilterMap = {
 };
 
 export const generateFilters = (tasks) => {
-  return Object.entries(taskToFilterMap).map(([filterName, tasksCount]) => {
-    return {
+
+  return Object.entries(taskToFilterMap).reduce((filters, [filterName, tasksCount], index) => {
+    filters[index] = {
       name: filterName,
-      count: tasksCount(tasks),
+      count: tasksCount(tasks)
     };
-  });
+    return filters;
+  }, []);
 };
