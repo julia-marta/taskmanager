@@ -1,16 +1,16 @@
 const createFilterItemMarkup = (filter, isChecked) => {
-  const {name, count} = filter;
+  const {title, count} = filter;
 
   return (
     `<input type="radio"
-      id="filter__${name}"
+      id="filter__${title}"
       class="filter__input visually-hidden"
       name="filter"
       ${isChecked ? `checked` : ``}
       ${count === 0 ? `disabled` : ``}
       />
-      <label for="filter__${name}" class="filter__label">
-      ${name} <span class="filter__${name}-count">${count}</span></label>`
+      <label for="filter__${title}" class="filter__label">
+      ${title} <span class="filter__${title}-count">${count}</span></label>`
   );
 };
 

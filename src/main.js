@@ -13,7 +13,6 @@ const CARD_COUNT_PER_STEP = 8;
 
 const tasks = generateTasks(CARD_COUNT);
 const filters = generateFilters(tasks);
-console.log(filters);
 
 const render = (container, markup, place = `beforeend`) => {
   container.insertAdjacentHTML(place, markup);
