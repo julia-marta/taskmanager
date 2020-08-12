@@ -1,18 +1,18 @@
 import {createElement} from "../utils.js";
 
-const createBoardMarkup = () => {
+const createCardListMarkup = () => {
   return (
-    `<section class="board container"></section>`
+    `<div class="board__tasks"></div>`
   );
 };
 
-export default class Board {
+export default class CardList {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return createBoardMarkup();
+    return createCardListMarkup();
   }
 
   getElement() {

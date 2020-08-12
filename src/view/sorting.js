@@ -1,4 +1,6 @@
-export const createSortingMarkup = () => {
+import {createElement} from "../utils.js";
+
+const createSortingMarkup = () => {
   return (
     `<div class="board__filter-list">
         <a href="#" class="board__filter" data-sort-type="default">SORT BY DEFAULT</a>
@@ -7,3 +9,25 @@ export const createSortingMarkup = () => {
     </div>`
   );
 };
+
+export default class Sorting {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createSortingMarkup();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

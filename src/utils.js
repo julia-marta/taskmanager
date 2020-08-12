@@ -1,3 +1,32 @@
+export const RenderPosition = {
+  AFTERBEGIN: `afterbegin`,
+  BEFOREEND: `beforeend`
+};
+
+// export const renderTemplate = (container, markup, place = BEFOREEND) => {
+//   container.insertAdjacentHTML(place, markup);
+// };
+
+export const createElement = (markup) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = markup;
+
+  return newElement.firstChild;
+};
+
+const {AFTERBEGIN, BEFOREEND} = RenderPosition;
+
+export const render = (container, element, place = BEFOREEND) => {
+  switch (place) {
+    case AFTERBEGIN:
+      container.prepend(element);
+      break;
+    case BEFOREEND:
+      container.append(element);
+      break;
+  }
+};
+
 export const getRandomInteger = (min = 0, max = 1) => {
   return Math.floor(min + Math.random() * (max - min + 1));
 };
@@ -30,9 +59,7 @@ export const isTaskExpired = (dueDate, isToday) => {
   } else {
     return currentDate.getTime() > dueDate.getTime();
   }
-
 };
-
 
 export const isTaskRepeating = (repeatingDays) => {
   return Object.values(repeatingDays).some(Boolean);

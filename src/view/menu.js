@@ -1,4 +1,6 @@
-export const createMenuMarkup = () => {
+import {createElement} from "../utils.js";
+
+const createMenuMarkup = () => {
   return (
     `<section class="control__btn-wrap">
       <input
@@ -30,3 +32,25 @@ export const createMenuMarkup = () => {
     </section>`
   );
 };
+
+export default class Menu {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createMenuMarkup();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

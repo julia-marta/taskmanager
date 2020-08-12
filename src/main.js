@@ -1,60 +1,82 @@
-import {createMenuMarkup} from "./view/menu.js";
-import {createFilterMarkup} from "./view/filter.js";
-import {createBoardMarkup} from "./view/board.js";
-import {createSortingMarkup} from "./view/sorting.js";
-import {createCardEditMarkup} from "./view/card-edit.js";
-import {createCardMarkup} from "./view/card.js";
-import {createLoadButtonMarkup} from "./view/load-button.js";
+import MenuView from "./view/menu.js";
+import FilterView from "./view/filter.js";
+import BoardView from "./view/board.js";
+import SortingView from "./view/sorting.js";
+import CardListView from "./view/card-list.js";
+import CardEditView from "./view/card-edit.js";
+import CardView from "./view/card.js";
+import LoadButtonView from "./view/load-button.js";
 import {generateTasks} from "./mock/task.js";
 import {generateFilters} from "./mock/filter.js";
+import {RenderPosition, render} from "./utils.js";
 
+const {AFTERBEGIN} = RenderPosition;
 const CARD_COUNT = 20;
 const CARD_COUNT_PER_STEP = 8;
 
 const tasks = generateTasks(CARD_COUNT);
 const filters = generateFilters(tasks);
 
-const render = (container, markup, place = `beforeend`) => {
-  container.insertAdjacentHTML(place, markup);
-};
-
 const mainPage = document.querySelector(`.main`);
 const header = mainPage.querySelector(`.main__control`);
 
-render(header, createMenuMarkup());
-render(mainPage, createFilterMarkup(filters));
-render(mainPage, createBoardMarkup());
+render(header, new MenuView().getElement());
+render(mainPage, new FilterView(filters).getElement());
 
-const board = mainPage.querySelector(`.board`);
-const taskList = board.querySelector(`.board__tasks`);
+const boardComponent = new BoardView();
+const cardListComponent = new CardListView();
 
-render(board, createSortingMarkup(), `afterbegin`);
-render(taskList, createCardEditMarkup(tasks[0]));
+render(mainPage, boardComponent.getElement());
+render(boardComponent.getElement(), new SortingView().getElement(), AFTERBEGIN);
+render(boardComponent.getElement(), cardListComponent.getElement());
 
-const renderCards = (task) => {
-  render(taskList, createCardMarkup(task));
+const renderCard = (task) => {
+  const cardComponent = new CardView(task);
+  const cardEditComponent = new CardEditView(task);
+  const cardList = cardListComponent.getElement();
+
+  const replaceCardToEdit = () => {
+    cardList.replaceChild(cardEditComponent.getElement(), cardComponent.getElement());
+  };
+
+  const replaceEditToCard = () => {
+    cardList.replaceChild(cardComponent.getElement(), cardEditComponent.getElement());
+  };
+
+  cardComponent.getElement().querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
+    replaceCardToEdit();
+  });
+
+  cardEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    replaceEditToCard();
+  });
+
+  render(cardList, cardComponent.getElement());
 }
 
-for (let i = 1; i < Math.min(tasks.length, CARD_COUNT_PER_STEP); i++) {
-  renderCards(tasks[i]);
+for (let i = 0; i < Math.min(tasks.length, CARD_COUNT_PER_STEP); i++) {
+  renderCard(tasks[i]);
 }
 
 if (tasks.length > CARD_COUNT_PER_STEP) {
   let renderedCardCount = CARD_COUNT_PER_STEP;
-  render(board, createLoadButtonMarkup());
 
-  const loadMoreButton = board.querySelector(`.load-more`);
+  const loadButtonComponent = new LoadButtonView();
+  render(boardComponent.getElement(), loadButtonComponent.getElement());
 
-  const onLoadMoreButtonClick = (evt) => {
+  const onLoadButtonClick = (evt) => {
     evt.preventDefault();
-    tasks.slice(renderedCardCount, renderedCardCount + CARD_COUNT_PER_STEP).forEach((task) => renderCards(task));
+    tasks.slice(renderedCardCount, renderedCardCount + CARD_COUNT_PER_STEP)
+    .forEach((task) => renderCard(task));
 
     renderedCardCount += CARD_COUNT_PER_STEP;
 
     if (renderedCardCount >= tasks.length) {
-      loadMoreButton.remove();
+      loadButtonComponent.getElement().remove();
+      loadButtonComponent.removeElement();
     }
   }
 
-  loadMoreButton.addEventListener(`click`, onLoadMoreButtonClick);
+  loadButtonComponent.getElement().addEventListener(`click`, onLoadButtonClick);
 };
