@@ -5,7 +5,7 @@ const BLANK_TASK = {
   color: COLORS[0],
   description: ``,
   dueDate: null,
-  repeatingDays: {
+  repeating: {
     mo: false,
     tu: false,
     we: false,
@@ -36,16 +36,16 @@ const createCardEditDateMarkup = (dueDate) => {
   </fieldset>` : ``}`;
 };
 
-const createCardEditRepeatingMarkup = (repeatingDays) => {
+const createCardEditRepeatingMarkup = (repeating) => {
 
   return `<button class="card__repeat-toggle" type="button">
-    repeat:<span class="card__repeat-status">${isTaskRepeating(repeatingDays) ? `yes` : `no`}</span>
+    repeat:<span class="card__repeat-status">${isTaskRepeating(repeating) ? `yes` : `no`}</span>
     </button>
-    ${isTaskRepeating(repeatingDays) ?
+    ${isTaskRepeating(repeating) ?
     `<fieldset class="card__repeat-days">
       <div class="card__repeat-days-inner">
 
-    ${Object.entries(repeatingDays).map(([day, repeat]) =>
+    ${Object.entries(repeating).map(([day, repeat]) =>
     `<input class="visually-hidden card__repeat-day-input"
         type="checkbox"
         id="repeat-${day}"
@@ -75,11 +75,11 @@ const createCardEditColorsMarkup = (currentColor) => {
 };
 
 const createCardEditMarkup = (task) => {
-  const {color, description, dueDate, repeatingDays} = task;
+  const {color, description, dueDate, repeating} = task;
   const deadlineClassName = isTaskExpired(dueDate) ? `card--deadline` : ``;
-  const repeatClassName = isTaskRepeating(repeatingDays) ? `card--repeat` : ``;
+  const repeatClassName = isTaskRepeating(repeating) ? `card--repeat` : ``;
   const dateMarkup = createCardEditDateMarkup(dueDate);
-  const repeatMarkup = createCardEditRepeatingMarkup(repeatingDays);
+  const repeatMarkup = createCardEditRepeatingMarkup(repeating);
   const colorsMarkup = createCardEditColorsMarkup(color);
 
   return (
@@ -127,7 +127,7 @@ const createCardEditMarkup = (task) => {
 
 export default class CardEdit {
   constructor(task) {
-    this._task = task || BLANK_TASK;
+    this._task = task || Object.assign({}, BLANK_TASK);
     this._element = null;
   }
 

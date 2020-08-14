@@ -11,7 +11,7 @@ export const createElement = (markup) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = markup;
 
-  return newElement.firstChild;
+  return newElement.firstElementChild;
 };
 
 const {AFTERBEGIN, BEFOREEND} = RenderPosition;
@@ -61,8 +61,8 @@ export const isTaskExpired = (dueDate, isToday) => {
   }
 };
 
-export const isTaskRepeating = (repeatingDays) => {
-  return Object.values(repeatingDays).some(Boolean);
+export const isTaskRepeating = (repeating) => {
+  return Object.values(repeating).some(Boolean);
 };
 
 export const humanizeTaskDueDate = (dueDate) => {

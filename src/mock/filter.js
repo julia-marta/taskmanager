@@ -17,7 +17,7 @@ const isTaskFavorite = (task) => {
 };
 
 const isTaskRepeat = (task) => {
-  return !isTaskArchived(task) && isTaskRepeating(task.repeatingDays);
+  return !isTaskArchived(task) && isTaskRepeating(task.repeating);
 };
 
 const addFilteredTasksCount = (filter, check) => {
@@ -32,7 +32,7 @@ export const generateFilters = (tasks) => {
     filter.overdue = addFilteredTasksCount(filter.overdue, isTaskOverdue(task));
     filter.today = addFilteredTasksCount(filter.today, isTaskToday(task));
     filter.favorites = addFilteredTasksCount(filter.favorites, isTaskFavorite(task));
-    filter.repeatingDays = addFilteredTasksCount(filter.repeatingDays, isTaskRepeat(task));
+    filter.repeating = addFilteredTasksCount(filter.repeating, isTaskRepeat(task));
     filter.archive = addFilteredTasksCount(filter.archive, isTaskArchived(task));
 
     return filter;

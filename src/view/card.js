@@ -1,10 +1,10 @@
 import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate, createElement} from "../utils.js";
 
 const createCardMarkup = (task) => {
-  const {color, description, dueDate, repeatingDays, isArchive, isFavorite} = task;
+  const {color, description, dueDate, repeating, isArchive, isFavorite} = task;
 
   const deadlineClassName = isTaskExpired(dueDate) ? `card--deadline` : ``;
-  const repeatClassName = isTaskRepeating(repeatingDays) ? `card--repeat` : ``;
+  const repeatClassName = isTaskRepeating(repeating) ? `card--repeat` : ``;
   const archiveClassName = isArchive ? `card__btn--archive card__btn--disabled` : `card__btn--archive`;
   const favoriteClassName = isFavorite ? `card__btn--favorites card__btn--disabled` : `card__btn--favorites`;
 
