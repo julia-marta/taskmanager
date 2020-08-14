@@ -33,7 +33,7 @@ const generateRepeating = () => {
 
 const generateTask = () => {
   const dueDate = generateDate();
-  const repeatingDays = (dueDate === null)
+  const repeating = (dueDate === null)
     ? generateRepeating()
     : {
       mo: false,
@@ -48,7 +48,7 @@ const generateTask = () => {
   return {
     description: getRandomValue(DESCRIPTIONS),
     dueDate,
-    repeatingDays,
+    repeating,
     color: getRandomValue(COLORS),
     isArchive: getRandomBoolean(),
     isFavorite: getRandomBoolean()
