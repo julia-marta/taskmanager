@@ -127,7 +127,7 @@ const createCardEditMarkup = (task) => {
 
 export default class CardEdit {
   constructor(task) {
-    this._task = task || BLANK_TASK;
+    this._task = task || Object.assign({}, BLANK_TASK);
     this._element = null;
   }
 

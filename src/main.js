@@ -11,6 +11,7 @@ import {generateFilters} from "./mock/filter.js";
 import {RenderPosition, render} from "./utils.js";
 
 const {AFTERBEGIN} = RenderPosition;
+const ESC_KEY = `Escape` || `Esc`;
 const CARD_COUNT = 20;
 const CARD_COUNT_PER_STEP = 8;
 
@@ -43,13 +44,23 @@ const renderCard = (task) => {
     cardList.replaceChild(cardComponent.getElement(), cardEditComponent.getElement());
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === ESC_KEY) {
+      evt.preventDefault();
+      replaceEditToCard();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
   cardComponent.getElement().querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
     replaceCardToEdit();
+    document.addEventListener(`keydown`, onEscKeyDown);
   });
 
   cardEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
     evt.preventDefault();
     replaceEditToCard();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
   render(cardList, cardComponent.getElement());
