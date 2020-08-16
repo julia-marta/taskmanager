@@ -1,5 +1,5 @@
 import {DESCRIPTIONS, COLORS} from "../const.js";
-import {getRandomInteger, getRandomBoolean, getRandomValue} from "../utils.js";
+import {getRandomInteger, getRandomBoolean, getRandomValue} from "../utils/common.js";
 
 const MAX_DAYS_GUP = 7;
 

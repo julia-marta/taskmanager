@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractView from "./abstract.js";
 
 const createNoCardsMarkup = () => {
   return `<p class="board__no-tasks">
@@ -6,24 +6,9 @@ const createNoCardsMarkup = () => {
   </p>`;
 };
 
-export default class NoCards {
-  constructor() {
-    this._element = null;
-  }
+export default class NoCards extends AbstractView {
 
   getTemplate() {
     return createNoCardsMarkup();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
