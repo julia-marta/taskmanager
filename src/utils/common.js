@@ -6,7 +6,7 @@ export const getRandomBoolean = () => {
   return Boolean(getRandomInteger(0, 1));
 };
 
-export const getRandomValue = (list) => {
-  const randomIndex = getRandomInteger(0, list.length - 1);
-  return list[randomIndex];
+export const getRandomValue = (items) => {
+  const randomIndex = getRandomInteger(0, items.length - 1);
+  return items[randomIndex];
 };
