@@ -26,3 +26,39 @@ export const isTaskRepeating = (repeating) => {
 export const humanizeTaskDueDate = (dueDate) => {
   return dueDate.toLocaleString(`en-US`, {day: `numeric`, month: `long`});
 };
+
+const getWeightForNullDate = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+};
+
+export const sortTasksUp = (a, b) => {
+  const weight = getWeightForNullDate(a.dueDate, b.dueDate);
+
+  if (weight !== null) {
+    return weight;
+  }
+
+  return a.dueDate.getTime() - b.dueDate.getTime();
+};
+
+export const sortTasksDown = (a, b) => {
+  const weight = getWeightForNullDate(a.dueDate, b.dueDate);
+
+  if (weight !== null) {
+    return weight;
+  }
+
+  return b.dueDate.getTime() - a.dueDate.getTime();
+};
