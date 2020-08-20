@@ -3,6 +3,10 @@ import {getRandomInteger, getRandomBoolean, getRandomValue} from "../utils/commo
 
 const MAX_DAYS_GUP = 7;
 
+const generateID = () => {
+  return Date.now() + parseInt(Math.random() * 10000, 10);
+};
+
 const generateDate = () => {
   const isDate = getRandomBoolean();
 
@@ -46,6 +50,7 @@ const generateTask = () => {
     };
 
   return {
+    id: generateID(),
     description: getRandomValue(DESCRIPTIONS),
     dueDate,
     repeating,

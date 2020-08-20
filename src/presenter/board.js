@@ -2,11 +2,11 @@ import BoardView from "../view/board.js";
 import SortingView from "../view/sorting.js";
 import CardListView from "../view/card-list.js";
 import NoCardsView from "../view/no-cards.js";
-import CardEditView from "../view/card-edit.js";
-import CardView from "../view/card.js";
 import LoadButtonView from "../view/load-button.js";
-import {RenderPosition, render, replace, remove} from "../utils/render.js";
+import CardPresenter from "./card.js";
+import {RenderPosition, render, remove} from "../utils/render.js";
 import {sortTasksUp, sortTasksDown} from "../utils/task.js";
+import {updateItem} from "../utils/common.js";
 import {SortType} from "../const.js";
 
 const {AFTERBEGIN} = RenderPosition;
@@ -18,12 +18,17 @@ export default class Board {
     this._boardContainer = boardContainer;
     this._renderedCardCount = CARD_COUNT_PER_STEP;
     this._currentSortType = DEFAULT;
+    this._cardPresenter = {};
 
     this._boardComponent = new BoardView();
     this._sortComponent = new SortingView();
     this._cardListComponent = new CardListView();
     this._noCardsComponent = new NoCardsView();
     this._loadButtonComponent = new LoadButtonView();
+
+    this._handleModeChange = this._handleModeChange.bind(this);
+
+    this._handleTaskChange = this._handleTaskChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._handleLoadButtonClick = this._handleLoadButtonClick.bind(this);
   }
@@ -35,6 +40,16 @@ export default class Board {
     render(this._boardComponent, this._cardListComponent);
 
     this._renderBoard();
+  }
+
+  _handleModeChange() {
+    Object.values(this._cardPresenter).forEach((presenter) => presenter.resetView());
+  }
+
+  _handleTaskChange(updatedTask) {
+    this._tasks = updateItem(this._tasks, updatedTask);
+    this._defaultTasks = updateItem(this._defaultTasks, updatedTask);
+    this._cardPresenter[updatedTask.id].init(updatedTask);
   }
 
   _sortTasks(sortType) {
@@ -68,36 +83,9 @@ export default class Board {
   }
 
   _renderCard(task) {
-    const cardComponent = new CardView(task);
-    const cardEditComponent = new CardEditView(task);
-
-    const replaceCardToEdit = () => {
-      replace(cardEditComponent, cardComponent);
-    };
-
-    const replaceEditToCard = () => {
-      replace(cardComponent, cardEditComponent);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        evt.preventDefault();
-        replaceEditToCard();
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
-    cardComponent.setEditClickHandler(() => {
-      replaceCardToEdit();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-    cardEditComponent.setFormSubmitHandler(() => {
-      replaceEditToCard();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    });
-
-    render(this._cardListComponent, cardComponent);
+    const cardPresenter = new CardPresenter(this._cardListComponent, this._handleTaskChange, this._handleModeChange);
+    cardPresenter.init(task);
+    this._cardPresenter[task.id] = cardPresenter;
   }
 
   _renderCards(min, max) {
@@ -124,7 +112,8 @@ export default class Board {
   }
 
   _clearCardList() {
-    this._cardListComponent.getElement().innerHTML = ``;
+    Object.values(this._cardPresenter).forEach((presenter) => presenter.destroy());
+    this._cardPresenter = {};
     this._renderedCardCount = CARD_COUNT_PER_STEP;
   }
 
