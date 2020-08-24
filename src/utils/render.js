@@ -48,13 +48,11 @@ export const replace = (newElement, oldElement) => {
     newElement = newElement.getElement();
   }
 
-  const container = oldElement.parentElement;
-
-  if (container === null || oldElement === null || newElement === null) {
+  if (oldElement === null || newElement === null) {
     throw new Error(`Can't replace unexisting elements`);
   }
 
-  container.replaceChild(newElement, oldElement);
+  oldElement.replaceWith(newElement);
 };
 
 export const remove = (component) => {
