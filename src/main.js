@@ -1,19 +1,25 @@
-import MenuView from "./view/menu.js";
-import FilterView from "./view/filter.js";
 import BoardPresenter from "./presenter/board.js";
+import FilterPresenter from "./presenter/filter.js";
+import MenuPresenter from "./presenter/menu.js";
+import TasksModel from "./model/tasks.js";
+import FilterModel from "./model/filter.js";
 import {generateTasks} from "./mock/task.js";
-import {generateFilters} from "./mock/filter.js";
-import {render} from "./utils/render.js";
 
 const CARD_COUNT = 20;
 
 const tasks = generateTasks(CARD_COUNT);
-const filters = generateFilters(tasks);
+
+const tasksModel = new TasksModel();
+tasksModel.setTasks(tasks);
+const filterModel = new FilterModel();
 
 const mainPage = document.querySelector(`.main`);
 const header = mainPage.querySelector(`.main__control`);
-const boardPresenter = new BoardPresenter(mainPage);
 
-render(header, new MenuView());
-render(mainPage, new FilterView(filters));
-boardPresenter.init(tasks);
+const boardPresenter = new BoardPresenter(mainPage, tasksModel, filterModel);
+const filterPresenter = new FilterPresenter(mainPage, filterModel, tasksModel);
+const menuPresenter = new MenuPresenter(header, boardPresenter);
+
+menuPresenter.init();
+filterPresenter.init();
+boardPresenter.init();

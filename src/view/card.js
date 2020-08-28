@@ -1,3 +1,4 @@
+import he from "he";
 import AbstractView from "./abstract.js";
 import {isTaskExpired, isTaskRepeating, formatTaskDueDate} from "../utils/task.js";
 
@@ -30,7 +31,7 @@ const createCardMarkup = (task) => {
             </svg>
           </div>
           <div class="card__textarea-wrap">
-            <p class="card__text">${description}</p>
+            <p class="card__text">${he.encode(description)}</p>
           </div>
           <div class="card__settings">
             <div class="card__details">

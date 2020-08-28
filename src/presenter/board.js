@@ -4,67 +4,107 @@ import CardListView from "../view/card-list.js";
 import NoCardsView from "../view/no-cards.js";
 import LoadButtonView from "../view/load-button.js";
 import CardPresenter from "./card.js";
+import CardNewPresenter from "./card-new.js";
 import {RenderPosition, render, remove} from "../utils/render.js";
 import {sortTasksUp, sortTasksDown} from "../utils/task.js";
-import {updateItem} from "../utils/common.js";
-import {SortType} from "../const.js";
+import {filterRules} from "../utils/filter.js";
+import {FilterType, SortType, UserAction, UpdateType} from "../const.js";
 
 const {AFTERBEGIN} = RenderPosition;
+const {ALL} = FilterType;
 const {DEFAULT, DATE_DOWN, DATE_UP} = SortType;
+const {UPDATE, ADD, DELETE} = UserAction;
+const {PATCH, MINOR, MAJOR} = UpdateType;
 const CARD_COUNT_PER_STEP = 8;
 
 export default class Board {
-  constructor(boardContainer) {
+  constructor(boardContainer, tasksModel, filterModel) {
+    this._tasksModel = tasksModel;
+    this._filterModel = filterModel;
     this._boardContainer = boardContainer;
     this._renderedCardCount = CARD_COUNT_PER_STEP;
     this._currentSortType = DEFAULT;
     this._cardPresenter = {};
 
+    this._sortComponent = null;
+    this._loadButtonComponent = null;
+
     this._boardComponent = new BoardView();
-    this._sortComponent = new SortingView();
     this._cardListComponent = new CardListView();
     this._noCardsComponent = new NoCardsView();
-    this._loadButtonComponent = new LoadButtonView();
 
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
-
-    this._handleTaskChange = this._handleTaskChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._handleLoadButtonClick = this._handleLoadButtonClick.bind(this);
+
+    this._tasksModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+    this._cardNewPresenter = new CardNewPresenter(this._cardListComponent, this._handleViewAction);
   }
 
-  init(tasks) {
-    this._tasks = tasks.slice();
-    this._defaultTasks = tasks.slice();
+  init() {
     render(this._boardContainer, this._boardComponent);
     render(this._boardComponent, this._cardListComponent);
 
     this._renderBoard();
   }
 
-  _handleModeChange() {
-    Object.values(this._cardPresenter).forEach((presenter) => presenter.resetView());
+  createCard() {
+    this._currentSortType = DEFAULT;
+    this._filterModel.setFilter(MAJOR, ALL);
+    this._cardNewPresenter.init();
   }
 
-  _handleTaskChange(updatedTask) {
-    this._tasks = updateItem(this._tasks, updatedTask);
-    this._defaultTasks = updateItem(this._defaultTasks, updatedTask);
-    this._cardPresenter[updatedTask.id].init(updatedTask);
-  }
+  _getTasks() {
+    const filterType = this._filterModel.getFilter();
+    const tasks = this._tasksModel.getTasks();
+    const filteredTasks = tasks.filter((task) => filterRules[filterType](task));
 
-  _sortTasks(sortType) {
-    switch (sortType) {
+    switch (this._currentSortType) {
       case DATE_UP:
-        this._tasks.sort(sortTasksUp);
-        break;
+        return filteredTasks.sort(sortTasksUp);
       case DATE_DOWN:
-        this._tasks.sort(sortTasksDown);
-        break;
-      default:
-        this._tasks = this._defaultTasks.slice();
+        return filteredTasks.sort(sortTasksDown);
     }
 
-    this._currentSortType = sortType;
+    return filteredTasks;
+  }
+
+  _handleViewAction(userAction, updateType, updatedItem) {
+    switch (userAction) {
+      case UPDATE:
+        this._tasksModel.updateTask(updateType, updatedItem);
+        break;
+      case ADD:
+        this._tasksModel.addTask(updateType, updatedItem);
+        break;
+      case DELETE:
+        this._tasksModel.deleteTask(updateType, updatedItem);
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, updatedItem) {
+    switch (updateType) {
+      case PATCH:
+        this._cardPresenter[updatedItem.id].init(updatedItem);
+        break;
+      case MINOR:
+        this._clearBoard();
+        this._renderBoard();
+        break;
+      case MAJOR:
+        this._clearBoard({resetRenderedCardCount: true, resetSortType: true});
+        this._renderBoard();
+        break;
+    }
+  }
+
+  _handleModeChange() {
+    this._cardNewPresenter.destroy();
+    Object.values(this._cardPresenter).forEach((presenter) => presenter.resetView());
   }
 
   _handleSortTypeChange(sortType) {
@@ -72,25 +112,30 @@ export default class Board {
       return;
     }
 
-    this._sortTasks(sortType);
-    this._clearCardList();
-    this._renderCardList();
+    this._currentSortType = sortType;
+    this._clearBoard({resetRenderedCardCount: true});
+    this._renderBoard();
   }
 
   _renderSort() {
-    render(this._boardComponent, this._sortComponent, AFTERBEGIN);
+    if (this._sortComponent !== null) {
+      this._sortComponent = null;
+    }
+
+    this._sortComponent = new SortingView(this._currentSortType);
     this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
+
+    render(this._boardComponent, this._sortComponent, AFTERBEGIN);
   }
 
   _renderCard(task) {
-    const cardPresenter = new CardPresenter(this._cardListComponent, this._handleTaskChange, this._handleModeChange);
+    const cardPresenter = new CardPresenter(this._cardListComponent, this._handleViewAction, this._handleModeChange);
     cardPresenter.init(task);
     this._cardPresenter[task.id] = cardPresenter;
   }
 
-  _renderCards(min, max) {
-    this._tasks.slice(min, max)
-    .forEach((task) => this._renderCard(task));
+  _renderCards(tasks) {
+    tasks.forEach((task) => this._renderCard(task));
   }
 
   _renderNoCards() {
@@ -98,39 +143,64 @@ export default class Board {
   }
 
   _handleLoadButtonClick() {
-    this._renderCards(this._renderedCardCount, this._renderedCardCount + CARD_COUNT_PER_STEP);
-    this._renderedCardCount += CARD_COUNT_PER_STEP;
+    const allCardsCount = this._getTasks().length;
+    const newRenderedCardCount = Math.min(allCardsCount, this._renderedCardCount + CARD_COUNT_PER_STEP);
+    const tasks = this._getTasks().slice(this._renderedCardCount, newRenderedCardCount);
 
-    if (this._renderedCardCount >= this._tasks.length) {
+    this._renderCards(tasks);
+    this._renderedCardCount = newRenderedCardCount;
+
+    if (this._renderedCardCount >= allCardsCount) {
       remove(this._loadButtonComponent);
     }
   }
 
   _renderLoadButton() {
-    render(this._boardComponent, this._loadButtonComponent);
+    if (this._loadButtonComponent !== null) {
+      this._loadButtonComponent = null;
+    }
+
+    this._loadButtonComponent = new LoadButtonView();
     this._loadButtonComponent.setClickHandler(this._handleLoadButtonClick);
+
+    render(this._boardComponent, this._loadButtonComponent);
   }
 
-  _clearCardList() {
+  _clearBoard({resetRenderedCardCount = false, resetSortType = false} = {}) {
+    const allCardsCount = this._getTasks().length;
+    this._cardNewPresenter.destroy();
     Object.values(this._cardPresenter).forEach((presenter) => presenter.destroy());
     this._cardPresenter = {};
-    this._renderedCardCount = CARD_COUNT_PER_STEP;
-  }
 
-  _renderCardList() {
-    this._renderCards(0, Math.min(this._tasks.length, CARD_COUNT_PER_STEP));
-    if (this._tasks.length > CARD_COUNT_PER_STEP) {
-      this._renderLoadButton();
+    remove(this._sortComponent);
+    remove(this._noCardsComponent);
+    remove(this._loadButtonComponent);
+
+    if (resetRenderedCardCount) {
+      this._renderedCardCount = CARD_COUNT_PER_STEP;
+    } else {
+      this._renderedCardCount = Math.min(allCardsCount, this._renderedCardCount);
+    }
+
+    if (resetSortType) {
+      this._currentSortType = DEFAULT;
     }
   }
 
   _renderBoard() {
-    if (this._tasks.every((task) => task.isArchive)) {
+    const tasks = this._getTasks();
+    const allCardsCount = tasks.length;
+
+    if (allCardsCount === 0) {
       this._renderNoCards();
       return;
     }
 
     this._renderSort();
-    this._renderCardList();
+    this._renderCards(tasks.slice(0, Math.min(allCardsCount, this._renderedCardCount)));
+
+    if (allCardsCount > this._renderedCardCount) {
+      this._renderLoadButton();
+    }
   }
 }

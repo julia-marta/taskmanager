@@ -35,7 +35,22 @@ const createMenuMarkup = () => {
 
 export default class Menu extends AbstractView {
 
+  constructor() {
+    super();
+    this._addCardHandler = this._addCardHandler.bind(this);
+  }
+
   getTemplate() {
     return createMenuMarkup();
+  }
+
+  _addCardHandler(evt) {
+    evt.preventDefault();
+    this._callback.addCard();
+  }
+
+  setAddCardHandler(callback) {
+    this._callback.addCard = callback;
+    this.getElement().querySelector(`#control__new-task`).addEventListener(`click`, this._addCardHandler);
   }
 }
