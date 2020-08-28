@@ -1,13 +1,12 @@
 import CardEditView from "../view/card-edit.js";
 import CardView from "../view/card.js";
 import {render, replace, remove} from "../utils/render.js";
-
-const Mode = {
-  DEFAULT: `DEFAULT`,
-  EDITING: `EDITING`
-};
+import {Mode, UserAction, UpdateType} from "../const.js";
+import {isTaskRepeating, isDatesEqual} from "../utils/task.js";
 
 const {DEFAULT, EDITING} = Mode;
+const {UPDATE, DELETE, ADD} = UserAction;
+const {PATCH, MINOR} = UpdateType;
 
 export default class Card {
   constructor(cardListContainer, changeData, changeMode) {
@@ -24,6 +23,7 @@ export default class Card {
     this._handleArchiveClick = this._handleArchiveClick.bind(this);
     this._handleFavoritesClick = this._handleFavoritesClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(task) {
@@ -38,6 +38,7 @@ export default class Card {
     this._cardComponent.setArchiveClickHandler(this._handleArchiveClick);
     this._cardComponent.setFavoritesClickHandler(this._handleFavoritesClick);
     this._cardEditComponent.setFormSubmitHandler(this._handleFormSubmit);
+    this._cardEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevCardComponent === null || prevCardEditComponent === null) {
       render(this._cardListContainer, this._cardComponent);
@@ -93,15 +94,21 @@ export default class Card {
   }
 
   _handleArchiveClick() {
-    this._changeData(Object.assign({}, this._task, {isArchive: !this._task.isArchive}));
+    this._changeData(ADD, MINOR, Object.assign({}, this._task, {isArchive: !this._task.isArchive}));
   }
 
   _handleFavoritesClick() {
-    this._changeData(Object.assign({}, this._task, {isFavorite: !this._task.isFavorite}));
+    this._changeData(UPDATE, MINOR, Object.assign({}, this._task, {isFavorite: !this._task.isFavorite}));
   }
 
-  _handleFormSubmit(task) {
-    this._changeData(task);
+  _handleFormSubmit(updatedTask) {
+    const isMinorUpdate = !isDatesEqual(this._task.dueDate, updatedTask.dueDate) || isTaskRepeating(this._task.repeating) !== isTaskRepeating(updatedTask.repeating);
+
+    this._changeData(UPDATE, isMinorUpdate ? MINOR : PATCH, updatedTask);
     this._replaceEditToCard();
+  }
+
+  _handleDeleteClick(task) {
+    this._changeData(DELETE, MINOR, task);
   }
 }
