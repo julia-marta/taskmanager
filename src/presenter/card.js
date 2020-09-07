@@ -5,7 +5,7 @@ import {Mode, UserAction, UpdateType} from "../const.js";
 import {isTaskRepeating, isDatesEqual} from "../utils/task.js";
 
 const {DEFAULT, EDITING} = Mode;
-const {UPDATE, DELETE, ADD} = UserAction;
+const {UPDATE, DELETE} = UserAction;
 const {PATCH, MINOR} = UpdateType;
 
 export default class Card {
@@ -94,7 +94,7 @@ export default class Card {
   }
 
   _handleArchiveClick() {
-    this._changeData(ADD, MINOR, Object.assign({}, this._task, {isArchive: !this._task.isArchive}));
+    this._changeData(UPDATE, MINOR, Object.assign({}, this._task, {isArchive: !this._task.isArchive}));
   }
 
   _handleFavoritesClick() {

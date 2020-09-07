@@ -18,7 +18,8 @@ export default class CardNew {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init() {
+  init(callback) {
+    this._resetMenu = callback;
     if (this._cardEditComponent !== null) {
       return;
     }
@@ -34,6 +35,10 @@ export default class CardNew {
   destroy() {
     if (this._cardEditComponent === null) {
       return;
+    }
+
+    if (this._resetMenu !== null) {
+      this._resetMenu();
     }
 
     remove(this._cardEditComponent);

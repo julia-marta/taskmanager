@@ -18,7 +18,7 @@ const header = mainPage.querySelector(`.main__control`);
 
 const boardPresenter = new BoardPresenter(mainPage, tasksModel, filterModel);
 const filterPresenter = new FilterPresenter(mainPage, filterModel, tasksModel);
-const menuPresenter = new MenuPresenter(header, boardPresenter);
+const menuPresenter = new MenuPresenter(header, mainPage, boardPresenter, filterModel, tasksModel);
 
 menuPresenter.init();
 filterPresenter.init();
