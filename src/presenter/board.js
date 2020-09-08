@@ -8,10 +8,10 @@ import CardNewPresenter from "./card-new.js";
 import {RenderPosition, render, remove} from "../utils/render.js";
 import {sortTasksUp, sortTasksDown} from "../utils/task.js";
 import {filterRules} from "../utils/filter.js";
-import {FilterType, SortType, UserAction, UpdateType} from "../const.js";
+import {SortType, UserAction, UpdateType} from "../const.js";
 
 const {AFTERBEGIN} = RenderPosition;
-const {ALL} = FilterType;
+
 const {DEFAULT, DATE_DOWN, DATE_UP} = SortType;
 const {UPDATE, ADD, DELETE} = UserAction;
 const {PATCH, MINOR, MAJOR} = UpdateType;
@@ -39,22 +39,29 @@ export default class Board {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._handleLoadButtonClick = this._handleLoadButtonClick.bind(this);
 
-    this._tasksModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
     this._cardNewPresenter = new CardNewPresenter(this._cardListComponent, this._handleViewAction);
   }
 
   init() {
     render(this._boardContainer, this._boardComponent);
     render(this._boardComponent, this._cardListComponent);
-
     this._renderBoard();
+    this._tasksModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
   }
 
-  createCard() {
-    this._currentSortType = DEFAULT;
-    this._filterModel.setFilter(MAJOR, ALL);
-    this._cardNewPresenter.init();
+  destroy() {
+    this._clearBoard({resetRenderedCardCount: true, resetSortType: true});
+
+    remove(this._cardListComponent);
+    remove(this._boardComponent);
+
+    this._tasksModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
+  createCard(callback) {
+    this._cardNewPresenter.init(callback);
   }
 
   _getTasks() {
@@ -176,11 +183,7 @@ export default class Board {
     remove(this._noCardsComponent);
     remove(this._loadButtonComponent);
 
-    if (resetRenderedCardCount) {
-      this._renderedCardCount = CARD_COUNT_PER_STEP;
-    } else {
-      this._renderedCardCount = Math.min(allCardsCount, this._renderedCardCount);
-    }
+    this._renderedCardCount = resetRenderedCardCount ? CARD_COUNT_PER_STEP : Math.min(allCardsCount, this._renderedCardCount);
 
     if (resetSortType) {
       this._currentSortType = DEFAULT;

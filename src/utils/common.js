@@ -10,3 +10,5 @@ export const getRandomValue = (items) => {
   const randomIndex = getRandomInteger(0, items.length - 1);
   return items[randomIndex];
 };
+
+export const makeItemsUnique = (items) => [...new Set(items)];
