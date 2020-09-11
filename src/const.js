@@ -1,5 +1,3 @@
-export const DESCRIPTIONS = [`Изучить теорию`, `Сделать домашку`, `Пройти интенсив на соточку`];
-
 export const Color = {
   BLACK: `black`,
   YELLOW: `yellow`,
@@ -24,7 +22,8 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  INIT: `INIT`
 };
 
 export const SortType = {

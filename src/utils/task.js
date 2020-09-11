@@ -1,5 +1,9 @@
 import moment from "moment";
 
+export const generateID = () => {
+  return Date.now() + parseInt(Math.random() * 10000, 10);
+};
+
 export const getCurrentDate = () => {
   const currentDate = new Date();
   currentDate.setHours(23, 59, 59, 999);
@@ -70,5 +74,5 @@ export const sortTasksDown = (a, b) => {
 };
 
 export const isDatesEqual = (dateA, dateB) => {
-  return moment(dateA).isSame(dateB) || dateA === null && dateB === null;
+  return moment(dateA).isSame(dateB, `day`) || dateA === null && dateB === null;
 };

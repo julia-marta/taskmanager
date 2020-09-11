@@ -1,6 +1,6 @@
 import CardEditView from "../view/card-edit.js";
 import {RenderPosition, render, remove} from "../utils/render.js";
-import {generateID} from "../mock/task.js";
+import {generateID} from "../utils/task.js";
 import {UserAction, UpdateType} from "../const.js";
 
 const {AFTERBEGIN} = RenderPosition;
