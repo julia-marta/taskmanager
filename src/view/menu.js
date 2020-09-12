@@ -68,4 +68,12 @@ export default class Menu extends AbstractView {
       item.checked = true;
     }
   }
+
+  disableMenuItem(menuItem) {
+    this.getElement().querySelector(`[value=${menuItem}]`).disabled = true;
+  }
+
+  enableMenuItem(menuItem) {
+    this.getElement().querySelector(`[value=${menuItem}]`).disabled = false;
+  }
 }

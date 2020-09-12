@@ -27,7 +27,7 @@ export default class Menu {
   }
 
   _handleCardNewClose() {
-    this._menuComponent.getElement().querySelector(`[value=${TASKS}]`).disabled = false;
+    this._menuComponent.enableMenuItem(TASKS);
     this._menuComponent.setActiveMenuItem(TASKS);
   }
 
@@ -39,7 +39,7 @@ export default class Menu {
         this._filterModel.setFilter(MAJOR, ALL);
         this._boardPresenter.init();
         this._boardPresenter.createCard(this._handleCardNewClose);
-        this._menuComponent.getElement().querySelector(`[value=${TASKS}]`).disabled = true;
+        this._menuComponent.disableMenuItem(TASKS);
         break;
       case TASKS:
         this._boardPresenter.init();

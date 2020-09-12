@@ -1,6 +1,7 @@
 import BoardView from "../view/board.js";
 import SortingView from "../view/sorting.js";
 import CardListView from "../view/card-list.js";
+import LoadingView from "../view/loading.js";
 import NoCardsView from "../view/no-cards.js";
 import LoadButtonView from "../view/load-button.js";
 import CardPresenter from "./card.js";
@@ -14,17 +15,19 @@ const {AFTERBEGIN} = RenderPosition;
 
 const {DEFAULT, DATE_DOWN, DATE_UP} = SortType;
 const {UPDATE, ADD, DELETE} = UserAction;
-const {PATCH, MINOR, MAJOR} = UpdateType;
+const {PATCH, MINOR, MAJOR, INIT} = UpdateType;
 const CARD_COUNT_PER_STEP = 8;
 
 export default class Board {
-  constructor(boardContainer, tasksModel, filterModel) {
+  constructor(boardContainer, tasksModel, filterModel, api) {
     this._tasksModel = tasksModel;
     this._filterModel = filterModel;
     this._boardContainer = boardContainer;
     this._renderedCardCount = CARD_COUNT_PER_STEP;
     this._currentSortType = DEFAULT;
     this._cardPresenter = {};
+    this._isLoading = true;
+    this._api = api;
 
     this._sortComponent = null;
     this._loadButtonComponent = null;
@@ -32,6 +35,7 @@ export default class Board {
     this._boardComponent = new BoardView();
     this._cardListComponent = new CardListView();
     this._noCardsComponent = new NoCardsView();
+    this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -82,7 +86,9 @@ export default class Board {
   _handleViewAction(userAction, updateType, updatedItem) {
     switch (userAction) {
       case UPDATE:
-        this._tasksModel.updateTask(updateType, updatedItem);
+        this._api.updateTask(updatedItem).then((response) => {
+          this._tasksModel.updateTask(updateType, response);
+        });
         break;
       case ADD:
         this._tasksModel.addTask(updateType, updatedItem);
@@ -104,6 +110,11 @@ export default class Board {
         break;
       case MAJOR:
         this._clearBoard({resetRenderedCardCount: true, resetSortType: true});
+        this._renderBoard();
+        break;
+      case INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
         this._renderBoard();
         break;
     }
@@ -145,6 +156,10 @@ export default class Board {
     tasks.forEach((task) => this._renderCard(task));
   }
 
+  _renderLoading() {
+    render(this._boardComponent, this._loadingComponent, AFTERBEGIN);
+  }
+
   _renderNoCards() {
     render(this._boardComponent, this._noCardsComponent, AFTERBEGIN);
   }
@@ -180,6 +195,7 @@ export default class Board {
     this._cardPresenter = {};
 
     remove(this._sortComponent);
+    remove(this._loadingComponent);
     remove(this._noCardsComponent);
     remove(this._loadButtonComponent);
 
@@ -191,6 +207,10 @@ export default class Board {
   }
 
   _renderBoard() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
     const tasks = this._getTasks();
     const allCardsCount = tasks.length;
 

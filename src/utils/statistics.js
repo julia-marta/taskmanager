@@ -43,7 +43,7 @@ export const countCompletedTasksInDateRange = (tasks, dateFrom, dateTo) => {
 
 export const getDatesInRange = (dateFrom, dateTo) => {
   const dates = [];
-  let stepDate = new Date(dateFrom);
+  const stepDate = new Date(dateFrom);
 
   while (moment(stepDate).isSameOrBefore(dateTo)) {
     dates.push(new Date(stepDate));

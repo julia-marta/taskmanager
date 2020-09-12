@@ -224,8 +224,6 @@ export default class Statistics extends SmartView {
     if (!dateFrom || !dateTo) {
       return;
     }
-    dateFrom.setHours(23, 59, 59, 999);
-    dateTo.setHours(23, 59, 59, 999);
 
     this.updateData({dateFrom, dateTo});
   }
