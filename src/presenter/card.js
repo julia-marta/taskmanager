@@ -1,12 +1,13 @@
 import CardEditView from "../view/card-edit.js";
 import CardView from "../view/card.js";
 import {render, replace, remove} from "../utils/render.js";
-import {Mode, UserAction, UpdateType} from "../const.js";
+import {Mode, UserAction, UpdateType, State} from "../const.js";
 import {isTaskRepeating, isDatesEqual} from "../utils/task.js";
 
 const {DEFAULT, EDITING} = Mode;
 const {UPDATE, DELETE} = UserAction;
 const {PATCH, MINOR} = UpdateType;
+const {SAVING, DELETING, ABORTING} = State;
 
 export default class Card {
   constructor(cardListContainer, changeData, changeMode) {
@@ -50,7 +51,8 @@ export default class Card {
     }
 
     if (this._mode === EDITING) {
-      replace(this._cardEditComponent, prevCardEditComponent);
+      replace(this._cardComponent, prevCardEditComponent);
+      this._mode = DEFAULT;
     }
 
     remove(prevCardComponent);
@@ -65,6 +67,34 @@ export default class Card {
   resetView() {
     if (this._mode !== DEFAULT) {
       this._replaceEditToCard();
+    }
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this._cardEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+    switch (state) {
+      case SAVING:
+        this._cardEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case DELETING:
+        this._cardEditComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+      case ABORTING:
+        this._cardComponent.shake(resetFormState);
+        this._cardEditComponent.shake(resetFormState);
+        break;
     }
   }
 
@@ -105,7 +135,7 @@ export default class Card {
     const isMinorUpdate = !isDatesEqual(this._task.dueDate, updatedTask.dueDate) || isTaskRepeating(this._task.repeating) !== isTaskRepeating(updatedTask.repeating);
 
     this._changeData(UPDATE, isMinorUpdate ? MINOR : PATCH, updatedTask);
-    this._replaceEditToCard();
+    // this._replaceEditToCard();
   }
 
   _handleDeleteClick(task) {

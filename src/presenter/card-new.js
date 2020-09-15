@@ -1,6 +1,5 @@
 import CardEditView from "../view/card-edit.js";
 import {RenderPosition, render, remove} from "../utils/render.js";
-import {generateID} from "../utils/task.js";
 import {UserAction, UpdateType} from "../const.js";
 
 const {AFTERBEGIN} = RenderPosition;
@@ -46,8 +45,27 @@ export default class CardNew {
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setSaving() {
+    this._cardEditComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._cardEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._cardEditComponent.shake(resetFormState);
+  }
+
   _handleFormSubmit(task) {
-    this._changeData(ADD, MINOR, Object.assign({id: generateID()}, task));
+    this._changeData(ADD, MINOR, task);
     this.destroy();
   }
 

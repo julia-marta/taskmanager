@@ -22,7 +22,7 @@ const BLANK_TASK = {
   isFavorite: false
 };
 
-const createCardEditDateMarkup = (dueDate, isDueDate) => {
+const createCardEditDateMarkup = (dueDate, isDueDate, isDisabled) => {
   return `<button class="card__date-deadline-toggle" type="button">
     date: <span class="card__date-status">${isDueDate ? `yes` : `no`}</span>
     </button>
@@ -35,12 +35,13 @@ const createCardEditDateMarkup = (dueDate, isDueDate) => {
         placeholder=""
         name="date"
         value="${formatTaskDueDate(dueDate)}"
+        ${isDisabled ? `disabled` : ``}
       />
     </label>
   </fieldset>` : ``}`;
 };
 
-const createCardEditRepeatingMarkup = (repeating, isRepeating) => {
+const createCardEditRepeatingMarkup = (repeating, isRepeating, isDisabled) => {
 
   return `<button class="card__repeat-toggle" type="button">
     repeat:<span class="card__repeat-status">${isRepeating ? `yes` : `no`}</span>
@@ -56,6 +57,7 @@ const createCardEditRepeatingMarkup = (repeating, isRepeating) => {
         name="repeat"
         value="${day}"
         ${repeat ? `checked` : ``}
+        ${isDisabled ? `checked` : ``}
         />
       <label class="card__repeat-day" for="repeat-${day}">
       ${day}</label>`).join(``)}
@@ -79,10 +81,10 @@ const createCardEditColorsMarkup = (currentColor) => {
 };
 
 const createCardEditMarkup = (data) => {
-  const {color, description, dueDate, repeating, isDueDate, isRepeating} = data;
+  const {color, description, dueDate, repeating, isDueDate, isRepeating, isDisabled, isSaving, isDeleting} = data;
   const repeatClassName = isRepeating ? `card--repeat` : ``;
-  const dateMarkup = createCardEditDateMarkup(dueDate, isDueDate);
-  const repeatMarkup = createCardEditRepeatingMarkup(repeating, isRepeating);
+  const dateMarkup = createCardEditDateMarkup(dueDate, isDueDate, isDisabled);
+  const repeatMarkup = createCardEditRepeatingMarkup(repeating, isRepeating, isDisabled);
   const colorsMarkup = createCardEditColorsMarkup(color);
   const isSubmitDisabled = (isDueDate && dueDate === null) || (isRepeating && !isTaskRepeating(repeating));
 
@@ -101,6 +103,7 @@ const createCardEditMarkup = (data) => {
                 class="card__text"
                 placeholder="Start typing your text here..."
                 name="text"
+                ${isDisabled ? `disabled` : ``}
               >${he.encode(description)}</textarea>
             </label>
           </div>
@@ -120,8 +123,12 @@ const createCardEditMarkup = (data) => {
             </div>
           </div>
           <div class="card__status-btns">
-            <button class="card__save" type="submit" ${isSubmitDisabled ? `disabled` : ``}>save</button>
-            <button class="card__delete" type="button">delete</button>
+            <button class="card__save" type="submit" ${isSubmitDisabled || isDisabled ? `disabled` : ``}>
+              ${isSaving ? `saving...` : `save`}
+            </button>
+            <button class="card__delete" type="button" ${isDisabled ? `disabled` : ``}>
+              ${isDeleting ? `deleting...` : `delete`}
+            </button>
           </div>
         </div>
       </form>
@@ -265,7 +272,10 @@ export default class CardEdit extends SmartView {
   static parseTaskToData(task) {
     const flags = {
       isDueDate: task.dueDate !== null,
-      isRepeating: isTaskRepeating(task.repeating)
+      isRepeating: isTaskRepeating(task.repeating),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
     };
     return Object.assign({}, task, flags);
   }
@@ -291,6 +301,9 @@ export default class CardEdit extends SmartView {
 
     delete data.isDueDate;
     delete data.isRepeating;
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
 
     return data;
   }

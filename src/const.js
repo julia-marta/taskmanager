@@ -13,6 +13,12 @@ export const Mode = {
   EDITING: `EDITING`
 };
 
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
+
 export const UserAction = {
   UPDATE: `UPDATE_TASK`,
   ADD: `ADD_TASK`,

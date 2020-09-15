@@ -9,13 +9,14 @@ import CardNewPresenter from "./card-new.js";
 import {RenderPosition, render, remove} from "../utils/render.js";
 import {sortTasksUp, sortTasksDown} from "../utils/task.js";
 import {filterRules} from "../utils/filter.js";
-import {SortType, UserAction, UpdateType} from "../const.js";
+import {SortType, UserAction, UpdateType, State} from "../const.js";
 
 const {AFTERBEGIN} = RenderPosition;
 
 const {DEFAULT, DATE_DOWN, DATE_UP} = SortType;
 const {UPDATE, ADD, DELETE} = UserAction;
 const {PATCH, MINOR, MAJOR, INIT} = UpdateType;
+const {SAVING, DELETING, ABORTING} = State;
 const CARD_COUNT_PER_STEP = 8;
 
 export default class Board {
@@ -86,15 +87,31 @@ export default class Board {
   _handleViewAction(userAction, updateType, updatedItem) {
     switch (userAction) {
       case UPDATE:
+        this._cardPresenter[updatedItem.id].setViewState(SAVING);
         this._api.updateTask(updatedItem).then((response) => {
           this._tasksModel.updateTask(updateType, response);
+        })
+        .catch(() => {
+          this._cardPresenter[updatedItem.id].setViewState(ABORTING);
         });
         break;
       case ADD:
-        this._tasksModel.addTask(updateType, updatedItem);
+        this._cardNewPresenter.setSaving();
+        this._api.addTask(updatedItem).then((response) => {
+          this._tasksModel.addTask(updateType, response);
+        })
+        .catch(() => {
+          this._cardNewPresenter.setAborting();
+        });
         break;
       case DELETE:
-        this._tasksModel.deleteTask(updateType, updatedItem);
+        this._cardPresenter[updatedItem.id].setViewState(DELETING);
+        this._api.deleteTask(updatedItem).then(() => {
+          this._tasksModel.deleteTask(updateType, updatedItem);
+        })
+          .catch(() => {
+            this._cardPresenter[updatedItem.id].setViewState(ABORTING);
+          });
         break;
     }
   }
