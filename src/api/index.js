@@ -1,16 +1,16 @@
-import TasksModel from "./model/tasks.js";
+import TasksModel from "../model/tasks.js";
 
 const Method = {
-    GET: `GET`,
-    PUT: `PUT`,
-    POST: `POST`,
-    DELETE: `DELETE`
-  };
+  GET: `GET`,
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
+};
 
 const SuccessHTTPStatusRange = {
-    MIN: 200,
-    MAX: 299
-  };
+  MIN: 200,
+  MAX: 299
+};
 
 const {GET, PUT, POST, DELETE} = Method;
 const {MIN, MAX} = SuccessHTTPStatusRange;
@@ -56,6 +56,16 @@ export default class Api {
     });
   }
 
+  sync(data) {
+    return this._load({
+      url: `tasks/sync`,
+      method: POST,
+      body: JSON.stringify(data),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON);
+  }
+
   _load({
     url,
     method = GET,
@@ -64,7 +74,7 @@ export default class Api {
   }) {
     headers.append(`Authorization`, this._authorization);
 
-    return fetch(`${this._serverName}/${url}`,{method, body, headers})
+    return fetch(`${this._serverName}/${url}`, {method, body, headers})
       .then(Api.checkStatus)
       .catch(Api.catchError);
   }
