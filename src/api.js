@@ -2,7 +2,9 @@ import TasksModel from "./model/tasks.js";
 
 const Method = {
     GET: `GET`,
-    PUT: `PUT`
+    PUT: `PUT`,
+    POST: `POST`,
+    DELETE: `DELETE`
   };
 
 const SuccessHTTPStatusRange = {
@@ -10,7 +12,7 @@ const SuccessHTTPStatusRange = {
     MAX: 299
   };
 
-const {GET, PUT} = Method;
+const {GET, PUT, POST, DELETE} = Method;
 const {MIN, MAX} = SuccessHTTPStatusRange;
 
 export default class Api {
@@ -34,6 +36,24 @@ export default class Api {
     })
       .then(Api.toJSON)
       .then(TasksModel.adaptToClient);
+  }
+
+  addTask(task) {
+    return this._load({
+      url: `tasks`,
+      method: POST,
+      body: JSON.stringify(TasksModel.adaptToServer(task)),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON)
+      .then(TasksModel.adaptToClient);
+  }
+
+  deleteTask(task) {
+    return this._load({
+      url: `tasks/${task.id}`,
+      method: DELETE
+    });
   }
 
   _load({
